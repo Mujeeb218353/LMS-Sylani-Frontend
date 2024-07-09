@@ -18,7 +18,7 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const materialUIThemeChanger = useMaterialUIThemeChanger();
-  const handleLogin = async() => {
+  const handleLogin = async () => {
     setLoginCredentials({
       email,
       password,
@@ -32,35 +32,32 @@ const Login = () => {
   return (
     <div
       data-theme={`${theme}`}
-      className="min-h-screen flex justify-center items-center px-2"
+      className="min-h-screen flex justify-center items-center"
     >
       <Alert />
-      <div className="min-h-screen flex justify-center items-center">
-        <section className="flex flex-col items-center justify-center">
-          <div className="w-full bg-base-100 rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0 border">
-            <div className="p-4 space-y-4 md:space-y-6">
+      <div className="min-h-screen flex justify-center items-center w-full px-1">
+        <section className="px-4 flex flex-col items-center justify-center border-0 sm:border sm:rounded-xl sm:shadow-lg">
+            <div className="space-y-4 md:space-y-6 py-4 px-2">
               <h1 className="text-xl font-bold leading-tight tracking-tight md:text-2xl text-center">
                 Sign in to your account
               </h1>
               <div className="flex gap-y-5 flex-col">
-                <label htmlFor="password" className="block text-sm font-medium">
+                <label htmlFor="email" className="block text-sm font-medium">
                   Email
                 </label>
-                <div>
-                  <input
-                    type="email"
-                    name="email"
-                    id="email"
-                    className="input input-bordered w-full focus:outline-none"
-                    placeholder="example@example.com"
-                    required
-                    onChange={(e) => {
-                      e.preventDefault();
-                      setEmail(e.target.value);
-                    }}
-                    value={email}
-                  />
-                </div>
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  className="input input-bordered w-full focus:outline-none"
+                  placeholder="example@example.com"
+                  required
+                  onChange={(e) => {
+                    e.preventDefault();
+                    setEmail(e.target.value);
+                  }}
+                  value={email}
+                />
                 <label htmlFor="password" className="block text-sm font-medium">
                   Password
                 </label>
@@ -126,7 +123,7 @@ const Login = () => {
                 </div>
                 <ThemeProvider theme={materialUIThemeChanger}>
                   <FormControl>
-                    <FormLabel id="demo-controlled-radio-buttons-group">
+                    <FormLabel id="demo-controlled-radio-buttons-group" sx={{ fontSize: "0.75rem", fontWeight: "bold" }}>
                       Role
                     </FormLabel>
                     <RadioGroup
@@ -134,22 +131,25 @@ const Login = () => {
                       name="role"
                       value={role}
                       onChange={handleRole}
-                      sx={{ display: "flex", flexDirection: "row" }}
+                      sx={{ display: "flex", flexDirection: "row", gap: "0.5rem", justifyContent: "center" }}
                     >
                       <FormControlLabel
                         value="student"
                         control={<Radio />}
                         label="Student"
+                        sx={{ '.MuiFormControlLabel-label': { fontSize: '0.75rem' } }}
                       />
                       <FormControlLabel
                         value="teacher"
                         control={<Radio />}
                         label="Teacher"
+                        sx={{ '.MuiFormControlLabel-label': { fontSize: '0.75rem' } }}
                       />
                       <FormControlLabel
                         value="admin"
                         control={<Radio />}
                         label="Admin"
+                        sx={{ '.MuiFormControlLabel-label': { fontSize: '0.75rem' } }}
                       />
                     </RadioGroup>
                   </FormControl>
@@ -173,10 +173,9 @@ const Login = () => {
                 </div>
               </div>
             </div>
-          </div>
         </section>
       </div>
-      <ThemeChanger/>
+      <ThemeChanger />
     </div>
   );
 };

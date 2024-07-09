@@ -2,6 +2,7 @@ import { useContext } from "react";
 import { GlobalContext } from "../context/AppContext";
 import { Link } from "react-router-dom";
 import ThemeChanger from "../components/ThemeChanger";
+import SMITLogo from "../assets/SMIT.png";
 
 const NavbarFunc = () => {
   const { user, logoutUser } = useContext(GlobalContext);
@@ -28,7 +29,7 @@ const NavbarFunc = () => {
           </div>
           <ul
             tabIndex={0}
-            className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
+            className="menu  dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52 "
           >
             <li>
               <Link to="/">Home</Link>
@@ -36,7 +37,11 @@ const NavbarFunc = () => {
           </ul>
         </div>
       </div>
-      <div className="join"></div>
+      <div className="btn btn-ghost btn-circle avatar">
+        <Link to="/" className="w-10 rounded-full">
+          <img alt="SMIT Logo" src={SMITLogo} />
+        </Link>
+      </div>
       <div>
         <div className="dropdown dropdown-end">
           <div
@@ -45,10 +50,7 @@ const NavbarFunc = () => {
             className="btn btn-ghost btn-circle avatar"
           >
             <div className="w-10 rounded-full">
-              <img
-                alt="Tailwind CSS Navbar component"
-                src={`${user.profile}`}
-              />
+              <img alt="User Profile" src={`${user.profile}`} />
             </div>
           </div>
           <ul
@@ -67,7 +69,7 @@ const NavbarFunc = () => {
           </ul>
         </div>
       </div>
-     <ThemeChanger />
+      <ThemeChanger />
     </div>
   );
 };

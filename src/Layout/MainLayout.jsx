@@ -6,7 +6,7 @@ import { useContext } from "react";
 const MainLayout = () => {
   const {theme} = useContext(GlobalContext);
   return (
-    <div data-theme={`${theme}`}>
+    <div data-theme={theme}>
         <NavbarFunc />
         <Outlet />
         <FooterFunc />
