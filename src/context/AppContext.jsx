@@ -3,8 +3,6 @@ import PropTypes from "prop-types";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import Cookies from 'js-cookie';
-
 export const GlobalContext = createContext();
 
 const AppContext = ({ children }) => {
@@ -14,19 +12,18 @@ const AppContext = ({ children }) => {
   );
   localStorage.setItem("my-theme", theme);
   const [alert, setAlert] = useState();
-  const [loginCredentials, setLoginCredentials] = useState({});
   const [user, setUser] = useState({});
-  const [role, setRole] = useState("student");
+  const [role, setRole] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     localStorage.setItem("my-theme", theme);
   }, [theme]);
 
-  const registerUser = async (data) => {
+  const registerUser = async ({ data, role }) => {
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_USERS_API}/student/register`,
+        `${import.meta.env.VITE_USERS_API}/${role}/register`,
         data,
         {
           headers: {
@@ -35,39 +32,45 @@ const AppContext = ({ children }) => {
           withCredentials: true,
         }
       );
-      localStorage.setItem("my-accessToken", response.data.data.accessToken);
-      Cookies.set('refreshToken', response.data.refreshToken, { secure: true, httpOnly: true });
-      setAlert({ message: "Registration successful", type: "success" });
-      await getUser();
-      navigate("/");
+      if(localStorage.getItem("my-role") !== "admin"){
+        localStorage.setItem("my-accessToken", response.data.data.accessToken);
+        localStorage.setItem("my-role", role);
+        navigate("/");
+        await getUser();
+      }
+      setAlert({ message: response.data.message || "Registration successful", type: "success" });
     } catch (error) {
       setAlert({
-        message: error.response.data.message || "Registration failed",
+        message: "Registration failed",
         type: "error",
       });
     }
   };
 
-  const loginUser = async () => {
+  const loginUser = async (email, password) => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_USERS_API}/${role}/login`,
-        loginCredentials,
+        {
+          email,
+          password,
+        },
         {
           withCredentials: true,
         }
       );
       localStorage.setItem("my-accessToken", response.data.data.accessToken);
-      // localStorage.setItem("my-refreshToken", response.data.data.refreshToken);
+      localStorage.setItem("my-role", role);
       setAlert({ message: "Logged In Successfully", type: "success" });
       await getUser();
       navigate("/");
     } catch (error) {
-      setAlert({ message: error.response.data.message, type: "error" });
+      setAlert({ message: "Login failed", type: "error" });
     }
   };
 
   const getUser = async () => {
+    const role = localStorage.getItem("my-role");
     try {
       const user = await axios.get(
         `${import.meta.env.VITE_USERS_API}/${role}/getCurrent${
@@ -81,11 +84,14 @@ const AppContext = ({ children }) => {
       );
       setUser(user.data.data);
     } catch (error) {
-      setAlert({ message: error.response.data.message, type: "error" });
+      setAlert({ message: "Please Login Again", type: "error" });
+      localStorage.removeItem("my-accessToken");
+      localStorage.removeItem("my-role");
     }
   };
 
   const logoutUser = async () => {
+    const role = localStorage.getItem("my-role");
     try {
       await axios.post(
         `${import.meta.env.VITE_USERS_API}/${role}/logout`,
@@ -98,7 +104,7 @@ const AppContext = ({ children }) => {
       );
       setAlert({ message: "Logged Out Successfully", type: "success" });
       localStorage.removeItem("my-accessToken");
-      // localStorage.removeItem("my-refreshToken");
+      localStorage.removeItem("my-role");
       setUser(null);
       navigate("/login");
     } catch (error) {
@@ -128,16 +134,6 @@ const AppContext = ({ children }) => {
     }
   };
 
-  const getMyUser = async () => {
-    await getUser();
-  };
-
-  useEffect(() => {
-    if (Object.keys(loginCredentials).length > 0) {
-      loginUser();
-    }
-  }, [loginCredentials]);
-
   useEffect(() => {
     const accessToken = localStorage.getItem("my-accessToken");
     if (!accessToken) {
@@ -152,12 +148,8 @@ const AppContext = ({ children }) => {
     const refreshTimeout = timeUntilExpiration - 5 * 60 * 1000;
     if (refreshTimeout > 0) {
       setTimeout(refreshAccessToken, refreshTimeout);
-      getMyUser();
+      getUser();
     } else {
-      setAlert({
-        message: "Please login to continue",
-        type: "warning",
-      })
       navigate("/login");
     }
   }, []);
@@ -167,8 +159,6 @@ const AppContext = ({ children }) => {
       value={{
         theme,
         setTheme,
-        loginCredentials,
-        setLoginCredentials,
         alert,
         setAlert,
         user,
@@ -176,6 +166,7 @@ const AppContext = ({ children }) => {
         role,
         setRole,
         registerUser,
+        loginUser,
         logoutUser,
         loading,
         refreshAccessToken,

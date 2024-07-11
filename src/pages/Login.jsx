@@ -12,20 +12,24 @@ import useMaterialUIThemeChanger from "../hooks/useMaterialUiTheme";
 import ThemeChanger from "../components/ThemeChanger";
 
 const Login = () => {
-  const { theme, setLoginCredentials, role, setRole } =
+  const { theme, role, setRole, loginUser, setAlert } =
     useContext(GlobalContext);
   const [showPass, setShowPass] = useState("password");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const materialUIThemeChanger = useMaterialUIThemeChanger();
   const handleLogin = async () => {
-    setLoginCredentials({
-      email,
-      password,
-    });
+    if (!role) {
+      setAlert({
+        message: "Please select user role",
+        type: "error",
+      })
+      return
+    }
+    loginUser( email, password );
   };
 
-  const handleRole = (e) => {
+  const handleUserRole = (e) => {
     setRole(e.target.value);
   };
 
@@ -130,7 +134,7 @@ const Login = () => {
                       aria-labelledby="demo-controlled-radio-buttons-group"
                       name="role"
                       value={role}
-                      onChange={handleRole}
+                      onChange={handleUserRole}
                       sx={{ display: "flex", flexDirection: "row", gap: "0.5rem", justifyContent: "center" }}
                     >
                       <FormControlLabel

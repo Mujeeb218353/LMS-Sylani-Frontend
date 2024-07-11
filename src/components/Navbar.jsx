@@ -5,10 +5,10 @@ import ThemeChanger from "../components/ThemeChanger";
 import SMITLogo from "../assets/SMIT.png";
 
 const NavbarFunc = () => {
-  const { user, logoutUser } = useContext(GlobalContext);
+  const { user, logoutUser, theme } = useContext(GlobalContext);
 
   return (
-    <div className={"navbar shadow-md fixed flex justify-between"}>
+    <div className={"navbar shadow-md fixed flex justify-between z-10"} data-theme={theme}>
       <div className="">
         <div className="dropdown">
           <div tabIndex={0} role="button" className="btn btn-ghost btn-circle">

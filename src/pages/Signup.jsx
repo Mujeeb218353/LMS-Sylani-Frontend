@@ -223,8 +223,9 @@ const Signup = () => {
     data.append("password", password);
     data.append("confirmPassword", confirmPassword);
     data.append("dob", dob);
+    data.append("role", "student");
 
-    registerUser(data);
+    registerUser({data, role: "student"});
   };
   return (
     <div
