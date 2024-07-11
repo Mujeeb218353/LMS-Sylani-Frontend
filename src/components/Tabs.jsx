@@ -11,6 +11,8 @@ import Slide from '@mui/material/Slide';
 import AddAdmin from "./AddAdmin";
 import AddTeacher from "./AddTeacher";
 import AddAttendance from "./AddAttendance";
+import AddAssignment from "./AddAssignment";
+import AddQuiz from "./AddQuiz";
 
 const Admin = () => {
   const { user } = useContext(GlobalContext);
@@ -24,8 +26,8 @@ const Admin = () => {
   ];
 
   const teacherTabs = [
-    { label: "Attendance", value: "1", content: <AddAttendance /> },
-    { label: "Manage Classes", value: "2", content: <div>Manage Classes</div> },
+    { label: "Add Assignment", value: "1", content: <AddAssignment /> },
+    { label: "Add Quiz", value: "2", content: <AddQuiz /> },
   ];
 
   const studentTabs = [

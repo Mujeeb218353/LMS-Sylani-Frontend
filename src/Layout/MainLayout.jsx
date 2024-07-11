@@ -4,12 +4,12 @@ import FooterFunc from "../components/Footer";
 import { GlobalContext } from "../context/AppContext";
 import { useContext } from "react";
 const MainLayout = () => {
-  const {theme} = useContext(GlobalContext);
+  const { theme } = useContext(GlobalContext);
   return (
     <div data-theme={theme}>
-        <NavbarFunc />
-        <Outlet />
-        <FooterFunc />
+      <NavbarFunc />
+      <Outlet />
+      <FooterFunc />
     </div>
   );
 };

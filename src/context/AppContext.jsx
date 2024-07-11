@@ -32,16 +32,22 @@ const AppContext = ({ children }) => {
           withCredentials: true,
         }
       );
-      if(localStorage.getItem("my-role") !== "admin"){
+      if (localStorage.getItem("my-role") !== "admin") {
         localStorage.setItem("my-accessToken", response.data.data.accessToken);
         localStorage.setItem("my-role", role);
-        navigate("/");
+        setTimeout(() => {
+          setAlert(null);
+          navigate("/");
+        }, 2000);
         await getUser();
       }
-      setAlert({ message: response.data.message || "Registration successful", type: "success" });
+      setAlert({
+        message: response.data.message || "Registration successful",
+        type: "success",
+      });
     } catch (error) {
       setAlert({
-        message: "Registration failed",
+        message:  error.response.data.message || "Registration failed",
         type: "error",
       });
     }
@@ -62,10 +68,13 @@ const AppContext = ({ children }) => {
       localStorage.setItem("my-accessToken", response.data.data.accessToken);
       localStorage.setItem("my-role", role);
       setAlert({ message: "Logged In Successfully", type: "success" });
-      await getUser();
-      navigate("/");
+      setTimeout(() => {
+        setAlert(null);
+        navigate("/");
+      }, 2000);
+      await getUser()
     } catch (error) {
-      setAlert({ message: "Login failed", type: "error" });
+      setAlert({ message: error.response.data.message || "Login failed", type: "error" });
     }
   };
 
@@ -105,10 +114,13 @@ const AppContext = ({ children }) => {
       setAlert({ message: "Logged Out Successfully", type: "success" });
       localStorage.removeItem("my-accessToken");
       localStorage.removeItem("my-role");
-      setUser(null);
-      navigate("/login");
+      setTimeout(() => {
+        setAlert(null);
+        setUser(null);
+        navigate("/login");
+      }, 2000);
     } catch (error) {
-      setAlert({ message: error.response.data.message, type: "error" });
+      setAlert({ message: error.response.data.message || "Logout failed", type: "error" });
     }
   };
   const refreshAccessToken = async () => {
