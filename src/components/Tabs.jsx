@@ -13,16 +13,19 @@ import AddTeacher from "./AddTeacher";
 import AddAttendance from "./AddAttendance";
 import AddAssignment from "./AddAssignment";
 import AddQuiz from "./AddQuiz";
+import CreateClass from "./CreateClass";
+import Course from "./Course";
 
 const Admin = () => {
   const { user } = useContext(GlobalContext);
   const materialUIThemeChanger = useMaterialUIThemeChanger();
 
-  // Define tabs based on user role
   const adminTabs = [
-    { label: "Add Teacher", value: "1", content: <AddTeacher /> },
-    { label: "Add Admin", value: "2", content: <AddAdmin /> },
-    { label: "Attendance", value: "3", content: <AddAttendance /> },
+    { label: "Courses", value: "1", content: <Course /> },
+    { label: "Teachers", value: "2", content: <AddTeacher /> },
+    { label: "Admins", value: "3", content: <AddAdmin /> },
+    { label: "Classes", value: "4", content: <CreateClass /> },
+    { label: "Attendance", value: "5", content: <AddAttendance /> },
   ];
 
   const teacherTabs = [
@@ -61,7 +64,7 @@ const Admin = () => {
 
   return (
     <div className="flex justify-center flex-col items-center">
-      <h1 className="text-3xl font-bold text-center mb-1">{user?.role.charAt(0).toUpperCase() + user?.role.slice(1)}</h1>
+      <h1 className="text-3xl font-bold text-center mb-1">{user?.role.charAt(0).toUpperCase() + user?.role.slice(1)} Dashboard</h1>
       <ThemeProvider theme={materialUIThemeChanger}>
         <Box sx={{ width: '100%' }} ref={containerRef}>
           <TabContext value={value}>

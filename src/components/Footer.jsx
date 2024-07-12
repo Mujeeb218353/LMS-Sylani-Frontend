@@ -1,7 +1,7 @@
 const Footer = () => {
   return (
-    <footer className="footer bg-neutral text-neutral-content items-center p-4">
-      <aside className="grid-flow-col items-center">
+    <footer className="flex items-center justify-between flex-col-reverse bg-neutral text-neutral-content p-2">
+      <aside className="flex items-center gap-2">
         <svg
           width="36"
           height="36"
@@ -15,7 +15,7 @@ const Footer = () => {
         </svg>
         <p>Copyright © {new Date().getFullYear()} - All right reserved</p>
       </aside>
-      <nav className="grid-flow-col gap-4 md:place-self-center md:justify-self-end">
+      <nav className="flex justify-center gap-4">
         <a>
           <svg
             xmlns="http://www.w3.org/2000/svg"
