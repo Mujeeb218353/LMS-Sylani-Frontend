@@ -13,7 +13,7 @@ import AddTeacher from "./AddTeacher";
 import AddAttendance from "./AddAttendance";
 import AddAssignment from "./AddAssignment";
 import AddQuiz from "./AddQuiz";
-import CreateClass from "./CreateClass";
+import AddClass from "./AddClass";
 import Course from "./Course";
 
 const Admin = () => {
@@ -24,7 +24,7 @@ const Admin = () => {
     { label: "Courses", value: "1", content: <Course /> },
     { label: "Teachers", value: "2", content: <AddTeacher /> },
     { label: "Admins", value: "3", content: <AddAdmin /> },
-    { label: "Classes", value: "4", content: <CreateClass /> },
+    { label: "Classes", value: "4", content: <AddClass /> },
     { label: "Attendance", value: "5", content: <AddAttendance /> },
   ];
 

@@ -121,7 +121,15 @@ const AddAdmin = () => {
     data.append("password", password);
     data.append("role", "admin");
 
-    registerUser({ data, role: "admin" });
+    registerUser({ data, role: "admin" }).then(() => {
+      setFullName("");
+      setEmail("");
+      setPhoneNumber("");
+      setGender("");
+      setPassword("");
+      setConfirmPassword("");
+      setProfile(null);
+    })
   };
   return (
     <ThemeProvider theme={materialUIThemeChanger}>

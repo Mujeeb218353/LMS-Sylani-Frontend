@@ -8,12 +8,18 @@ export const GlobalContext = createContext();
 const AppContext = ({ children }) => {
   const navigate = useNavigate();
   const [theme, setTheme] = useState(
-    () => localStorage.getItem("my-theme") || "light"
+    localStorage.getItem("my-theme") || "light"
   );
   localStorage.setItem("my-theme", theme);
   const [alert, setAlert] = useState();
   const [user, setUser] = useState({});
   const [role, setRole] = useState("");
+  const [course, setCourse] = useState(null);
+  const [cities, setCities] = useState([]);
+  const [campuses, setCampuses] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [teachers, setTeachers] = useState([]);
+  const [classes, setClasses] = useState([])
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -47,9 +53,10 @@ const AppContext = ({ children }) => {
       });
     } catch (error) {
       setAlert({
-        message:  error.response.data.message || "Registration failed",
+        message: error.response.data.message || "Registration failed",
         type: "error",
       });
+      console.log(error);
     }
   };
 
@@ -72,9 +79,12 @@ const AppContext = ({ children }) => {
         setAlert(null);
         navigate("/");
       }, 2000);
-      await getUser()
+      await getUser();
     } catch (error) {
-      setAlert({ message: error.response.data.message || "Login failed", type: "error" });
+      setAlert({
+        message: error.response.data.message || "Login failed",
+        type: "error",
+      });
     }
   };
 
@@ -120,9 +130,13 @@ const AppContext = ({ children }) => {
         navigate("/login");
       }, 2000);
     } catch (error) {
-      setAlert({ message: error.response.data.message || "Logout failed", type: "error" });
+      setAlert({
+        message: error.response.data.message || "Logout failed",
+        type: "error",
+      });
     }
   };
+
   const refreshAccessToken = async () => {
     try {
       const response = await axios.post(
@@ -146,6 +160,217 @@ const AppContext = ({ children }) => {
     }
   };
 
+  const getCity = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_USERS_API}/admin/getCities`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setCities(response.data.data);
+    } catch (error) {
+      setAlert({ message: "Failed to fetch cities", type: "error" });
+    }
+  };
+
+  const handleCityChange = async (selectedCity) => {
+    if (selectedCity) {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_USERS_API}/admin/getCampuses`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+            },
+          }
+        );
+        setCampuses(response.data.data);
+      } catch (error) {
+        setAlert({ message: "Failed to fetch campuses", type: "error" });
+        console.log(error);
+      }
+    } else {
+      setCampuses([]);
+    }
+  };
+
+  // const getCourse = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `${import.meta.env.VITE_USERS_API}/admin/getCourses`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+  //         },
+  //       }
+  //     );
+  //     setCourses(response.data.data);
+  //   } catch (error) {
+  //     setAlert({ message: "Failed to fetch courses", type: "error" });
+  //   }
+  // };
+
+  const handleCampusChange = async (selectedCampus) => {
+    if (selectedCampus) {
+      try {
+        const response = await axios.get(
+          `${import.meta.env.VITE_USERS_API}/admin/getCourses`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+            },
+          }
+        );
+        setCourses(response.data.data);
+      } catch (error) {
+        setAlert({ message: "Failed to fetch courses", type: "error" });
+      }
+    } else {
+      setCourses([]);
+    }
+  };
+
+  const addCity = async ({ cityName, userId }) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_USERS_API}/admin/addCity`,
+        {
+          cityName,
+          userId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setCities((prevCities) => [response.data.data, ...prevCities]);
+      setAlert({
+        message: response.data.message || "City Added Successfully",
+        type: "success",
+      });
+    } catch (error) {
+      setAlert({
+        message: error.response.data.message || "Failed to Add City",
+        type: "error",
+      });
+    }
+  };
+
+  const addCampus = async ({ name, cityId, userId }) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_USERS_API}/admin/addCampus`,
+        {
+          name,
+          cityId,
+          userId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setAlert({
+        message: response.data.message || "Campus Added Successfully",
+        type: "success",
+      });
+      setCampuses((prevCampuses) => [response.data.data, ...prevCampuses]);
+    } catch (error) {
+      setAlert({
+        message: error.response.data.message || "Failed to Add Campus",
+        type: "error",
+      });
+    }
+  };
+
+  const addCourse = async ({ name, cityId, campusId, userId }) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_USERS_API}/admin/addCourse`,
+        {
+          name,
+          cityId,
+          campusId,
+          userId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setAlert({
+        message: response.data.message || "Course Added Successfully",
+        type: "success",
+      });
+      setCourses((prevCourses) => [response.data.data, ...prevCourses]);
+    } catch (error) {
+      setAlert({ message: error.response.data.message, type: "error" });
+    }
+  };
+
+  const handleCourseChange = async (selectedCourse) => {
+    if (!selectedCourse) {
+      setTeachers([]);
+      return;
+    }
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_USERS_API}/admin/getTeachersByCourse?courseId=${
+          selectedCourse._id
+        }`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setTeachers(response.data.data);
+    } catch (error) {
+      setAlert({
+        message: error.response.data.message || "Failed to fetch teachers",
+        type: "error",
+      });
+      console.log(error);
+    }
+  };
+
+  const addClass = async ({name, enrollmentKey, batch, timing, teacherId, cityId, courseId, campusId, userId }) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_USERS_API}/admin/addClass`,
+        {
+          name,
+          enrollmentKey,
+          batch,
+          timing,
+          teacherId,
+          cityId,
+          courseId,
+          campusId,
+          userId
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setAlert({
+        message: response.data.message || "Class Added Successfully",
+        type: "success",
+      });
+      setClasses((prevClasses) => [response.data.data, ...prevClasses]);
+    } catch (error) {
+      setAlert({ message: error.response.data.message, type: "error" });
+    }
+  }
+
   useEffect(() => {
     const accessToken = localStorage.getItem("my-accessToken");
     if (!accessToken) {
@@ -164,6 +389,8 @@ const AppContext = ({ children }) => {
     } else {
       navigate("/login");
     }
+    getCity();
+    // getCourse();
   }, []);
 
   return (
@@ -177,11 +404,29 @@ const AppContext = ({ children }) => {
         setUser,
         role,
         setRole,
+        loading,
+        setLoading,
+        cities,
+        setCities,
+        campuses,
+        setCampuses,
+        course,
+        setCourse,
+        courses,
+        teachers,
+        classes,
+        addCity,
+        addCampus,
+        addCourse,
+        setCourses,
         registerUser,
         loginUser,
         logoutUser,
-        loading,
         refreshAccessToken,
+        handleCityChange,
+        handleCampusChange,
+        addClass,
+        handleCourseChange,
       }}
     >
       {children}

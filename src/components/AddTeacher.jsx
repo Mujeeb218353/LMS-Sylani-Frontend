@@ -6,9 +6,17 @@ import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete";
 
 const AddTeacher = () => {
-  const { setAlert, registerUser } = useContext(GlobalContext);
+  const {
+    setAlert,
+    registerUser,
+    user,
+    cities,
+    campuses,
+    courses,
+    handleCityChange,
+    handleCampusChange,
+  } = useContext(GlobalContext);
   const materialUIThemeChanger = useMaterialUIThemeChanger();
-  const [course, setCourse] = useState("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -16,10 +24,9 @@ const AddTeacher = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [profile, setProfile] = useState("");
-
-  const isOptionEqualToValue = (option, value) => {
-    return option.id === value.id;
-  };
+  const [city, setCity] = useState(null);
+  const [campus, setCampus] = useState(null);
+  const [course, setCourse] = useState(null);
 
   const handleRegister = (e) => {
     e.preventDefault();
@@ -67,6 +74,30 @@ const AddTeacher = () => {
     if (!confirmPassword) {
       setAlert({
         message: "Confirm Password is required",
+        type: "error",
+      });
+      return;
+    }
+
+    if (!city) {
+      setAlert({
+        message: "City is required",
+        type: "error",
+      });
+      return;
+    }
+
+    if (!campus) {
+      setAlert({
+        message: "Campus is required",
+        type: "error",
+      });
+      return;
+    }
+
+    if (!user._id) {
+      setAlert({
+        message: "Invalid user",
         type: "error",
       });
       return;
@@ -123,15 +154,29 @@ const AddTeacher = () => {
 
     const data = new FormData();
     data.append("profile", profile);
-    data.append("course", course);
     data.append("fullName", fullName);
     data.append("email", email);
     data.append("phoneNumber", phoneNumber);
     data.append("gender", gender);
     data.append("password", password);
+    data.append("city", city._id);
+    data.append("campus", campus._id);
+    data.append("course", course._id);
     data.append("role", "teacher");
+    data.append("userId", user._id);
 
-    registerUser({ data, role: "teacher" });
+    registerUser({ data, role: "teacher" }).then(() => {
+      setFullName("");
+      setEmail("");
+      setPhoneNumber("");
+      setGender("");
+      setPassword("");
+      setConfirmPassword("");
+      setProfile("");
+      setCity(null);
+      setCampus(null);
+      setCourse(null);
+    });
   };
   return (
     <ThemeProvider theme={materialUIThemeChanger}>
@@ -168,7 +213,7 @@ const AddTeacher = () => {
             disablePortal
             id="gender"
             options={["Male", "Female", "Other"]}
-            isOptionEqualToValue={isOptionEqualToValue}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             sx={{ width: "100%" }}
             renderInput={(params) => <TextField {...params} label="Gender" />}
             onChange={(event, value) => setGender(value)}
@@ -196,14 +241,44 @@ const AddTeacher = () => {
           />
           <Autocomplete
             disablePortal
+            id="cities"
+            options={cities}
+            getOptionLabel={(option) => option.cityName || "Unknown City"}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            sx={{ width: "100%" }}
+            renderInput={(params) => <TextField {...params} label="City" />}
+            onChange={(event, value) => {
+              handleCityChange(value);
+              setCity(value);
+            }}
+            value={city}
+          />
+          <Autocomplete
+            disablePortal
+            id="campuses"
+            options={
+              city ? campuses.filter((campus) => campus.city === city?._id) : []
+            }
+            getOptionLabel={(option) => option.name || "Unknown Campus"}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            sx={{ width: "100%" }}
+            renderInput={(params) => <TextField {...params} label="Campus" />}
+            onChange={(event, value) => {
+              handleCampusChange(value);
+              setCampus(value);
+            }}
+            value={campus}
+          />
+          <Autocomplete
+            disablePortal
             id="course"
-            options={[
-              "Web and Mobile Application Development (Hybrid)",
-              "Data Science",
-              "Cyber Security",
-              "Artificial Intelligence",
-            ]}
-            isOptionEqualToValue={isOptionEqualToValue}
+            options={
+              campus
+                ? courses.filter((course) => course.campus === campus?._id)
+                : []
+            }
+            getOptionLabel={(option) => option.name || "Unknown Course"}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             sx={{ width: "100%" }}
             renderInput={(params) => <TextField {...params} label="Course" />}
             onChange={(event, value) => setCourse(value)}

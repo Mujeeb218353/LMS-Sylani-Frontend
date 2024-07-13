@@ -1,71 +1,36 @@
 import { Autocomplete, TextField } from "@mui/material";
 import { GlobalContext } from "../context/AppContext";
-import { useContext, useState, useEffect } from "react";
-import axios from "axios";
+import { useContext, useState } from "react";
 
 const AddCampus = () => {
-  const { setAlert } = useContext(GlobalContext);
+  const { setAlert, user, cities, addCampus } = useContext(GlobalContext);
   const [city, setCity] = useState(null);
-  const [cities, setCities] = useState([]);
-  const [campus, setCampus] = useState("");
-
-  const getCity = async () => {
-    try {
-      const response = await axios.get(
-        `${import.meta.env.VITE_USERS_API}/admin/getCities`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
-          },
-        }
-      );
-      setCities(response.data.data);
-    } catch (error) {
-      setAlert({ message: "Failed to fetch cities", type: "error" });
-    }
-  };
-
-  useEffect(() => {
-    getCity();
-  }, []);
+  const [campusName, setCampusName] = useState("");
 
   const isOptionEqualToValue = (option, value) => option._id === value?._id;
 
-  const getOptionLabel = (option) => {
-    return option.cityName || "Unknown City";
-  };
+  const getOptionLabel = (option) => option.cityName || "Unknown City";
 
-  const handleAddCampus = async () => {
-
+  const handleAddCampus = () => {
     if (!city) {
       setAlert({ message: "City is required", type: "error" });
       return;
     }
 
-    if (!campus) {
+    if (!campusName) {
       setAlert({ message: "Campus is required", type: "error" });
       return;
     }
 
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_USERS_API}/admin/addCampus`,
-        {
-          name: campus,
-          cityId: city._id
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
-          },
-        }
-      );
-      setAlert({ message: response.data.message, type: "success" });
-      setCampus("");
-      setCity(null);
-    } catch (error) {
-      setAlert({ message: error.response?.data?.message || "Failed to add campus", type: "error" });
+    if (!user) {
+      setAlert({ message: "Invalid user", type: "error" });
+      return;
     }
+
+    addCampus({ name: campusName, cityId: city._id, userId: user._id }).then(() => {
+      setCampusName("");
+      setCity(null);
+    });
   };
 
   return (
@@ -87,10 +52,12 @@ const AddCampus = () => {
         type="text"
         className="w-full"
         placeholder="Enter Campus"
-        onChange={(e) => setCampus(e.target.value)}
-        value={campus}
+        onChange={(e) => setCampusName(e.target.value)}
+        value={campusName}
       />
-      <button className="btn btn-accent w-1/2 mt-2" onClick={handleAddCampus}  disabled={ !city || !campus}>ADD CAMPUS</button>
+      <button className="btn btn-accent w-1/2 mt-2" onClick={handleAddCampus}>
+        ADD CAMPUS
+      </button>
     </div>
   );
 };
