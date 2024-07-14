@@ -161,6 +161,7 @@ const AppContext = ({ children }) => {
   };
 
   const getCity = async () => {
+    if(localStorage.getItem("my-role") !== "admin") return
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_USERS_API}/admin/getCities`,
@@ -371,6 +372,34 @@ const AppContext = ({ children }) => {
     }
   }
 
+  const handleEnrollInClass = async({ enrollmentKey, studentId }) =>{
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_USERS_API}/student/enrollStudent`,
+        {
+          enrollmentKey,
+          studentId
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setAlert({
+        message: response.data.message || "Enrolled Successfully",
+        type: "success",
+      });
+      setTimeout(() => {
+        setAlert(null);
+        window.location.reload();
+      }, 3000);
+    } catch (error) {
+      setAlert({ message: error.response.data.message, type: "error" });
+      console.log(error);
+    }
+  }
+
   useEffect(() => {
     const accessToken = localStorage.getItem("my-accessToken");
     if (!accessToken) {
@@ -427,6 +456,7 @@ const AppContext = ({ children }) => {
         handleCampusChange,
         addClass,
         handleCourseChange,
+        handleEnrollInClass,
       }}
     >
       {children}

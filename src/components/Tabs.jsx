@@ -15,6 +15,7 @@ import AddAssignment from "./AddAssignment";
 import AddQuiz from "./AddQuiz";
 import AddClass from "./AddClass";
 import Course from "./Course";
+import EnrollInClass from "./EnrollInClass";
 
 const Admin = () => {
   const { user } = useContext(GlobalContext);
@@ -34,8 +35,8 @@ const Admin = () => {
   ];
 
   const studentTabs = [
-    { label: "View Attendance", value: "1", content: <div>View Attendance</div> },
-    { label: "Assignments", value: "2", content: <div>Assignments</div> },
+    { label: "Assignment", value: "1", content: <div>Assignment</div> },
+    { label: "Quiz", value: "2", content: <div>Quiz</div> },
     { label: "View Attendance", value: "3", content: <div>View Attendance</div> },
   ];
 
@@ -59,7 +60,11 @@ const Admin = () => {
   };
 
   if (user?.isVerified !== true) {
-    return <div className="text-center text-xl">Please verify yourself from our admin</div>;
+    return <div className="text-center text-xl">Please verify yourself from our any campus</div>;
+  }
+
+  if(user?.role === 'student' && user?.enrolledInClass === null){
+    return <EnrollInClass />;
   }
 
   return (

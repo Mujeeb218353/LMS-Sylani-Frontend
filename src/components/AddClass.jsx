@@ -16,7 +16,7 @@ const AddClass = () => {
     handleCityChange,
     handleCampusChange,
     handleCourseChange,
-    addClass
+    addClass,
   } = useContext(GlobalContext);
   const [className, setClassName] = useState("");
   const [enrollmentKey, setEnrollmentKey] = useState("");
@@ -26,50 +26,68 @@ const AddClass = () => {
   const [course, setCourse] = useState(null);
   const [batch, setBatch] = useState("");
   const [timing, setTiming] = useState("");
+  const [error, setError] = useState(false);
+  const [helperText, setHelperText] = useState("");
 
   const handleAddClass = () => {
-
-    if(!className){
+    if (!className) {
       setAlert({ message: "Class Name is required", type: "error" });
       return;
     }
 
-    if(!enrollmentKey){
+    if (!enrollmentKey) {
       setAlert({ message: "Enrollment Key is required", type: "error" });
       return;
     }
 
-    if(!teacher){
+    if (/\s+/.test(enrollmentKey)) {
+      setAlert({
+        message: "Enrollment Key cannot contain spaces",
+        type: "error",
+      });
+      return;
+    }
+
+    if (!teacher) {
       setAlert({ message: "Teacher is required", type: "error" });
       return;
     }
 
-    if(!city){
+    if (!city) {
       setAlert({ message: "City is required", type: "error" });
       return;
     }
 
-    if(!campus){
+    if (!campus) {
       setAlert({ message: "Campus is required", type: "error" });
       return;
     }
 
-    if(!course){
+    if (!course) {
       setAlert({ message: "Course is required", type: "error" });
       return;
     }
 
-    if(!batch){
+    if (!batch) {
       setAlert({ message: "Batch is required", type: "error" });
       return;
     }
 
-    if(!timing){
+    if (!timing) {
       setAlert({ message: "Timing is required", type: "error" });
       return;
     }
 
-    if(!user){
+    if (
+      !/^([1-9]|1[0-2]):[0-5][0-9] (AM|PM) - ([1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/.test(
+        timing
+      )
+    ) {
+      setAlert({ message: "Invalid Timing", type: "error" });
+      return;
+    }
+
+    if (!user) {
       setAlert({ message: "User is required", type: "error" });
       return;
     }
@@ -83,7 +101,7 @@ const AddClass = () => {
       cityId: city._id,
       courseId: course._id,
       campusId: campus._id,
-      userId: user._id
+      userId: user._id,
     }).then(() => {
       setClassName("");
       setEnrollmentKey("");
@@ -93,8 +111,7 @@ const AddClass = () => {
       setCourse(null);
       setBatch("");
       setTiming("");
-    })
-
+    });
   };
 
   return (
@@ -133,9 +150,29 @@ const AddClass = () => {
             label="Timings"
             type="text"
             className="w-full"
-            placeholder="Enter Timings"
-            onChange={(e) => setTiming(e.target.value)}
+            placeholder="HH:MM AM/PM - HH:MM AM/PM"
+            onChange={(e) => {
+              setTiming(e.target.value);
+              if (
+                /^([1-9]|1[0-2]):[0-5][0-9] (AM|PM) - ([1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/.test(
+                  e.target.value
+                )
+              ) {
+                setError(false);
+                setHelperText("");
+              } else if((e.target.value).length > 4){
+                setError(true);
+                setHelperText(
+                  "Invalid time format. Use HH:MM AM/PM - HH:MM AM/PM"
+                );
+              }else{
+                setError(false);
+                setHelperText("");
+              }
+            }}
             value={timing}
+            error={error}
+            helperText={helperText}
           />
           <Autocomplete
             disablePortal
