@@ -19,7 +19,9 @@ const AppContext = ({ children }) => {
   const [campuses, setCampuses] = useState([]);
   const [courses, setCourses] = useState([]);
   const [teachers, setTeachers] = useState([]);
-  const [classes, setClasses] = useState([])
+  const [studentClass, setStudentClass] = useState("");
+  const [submittedAssignments, setSubmittedAssignments] = useState([]);
+  const [unSubmittedAssignments, setUnSubmittedAssignments] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -74,6 +76,14 @@ const AppContext = ({ children }) => {
       );
       localStorage.setItem("my-accessToken", response.data.data.accessToken);
       localStorage.setItem("my-role", role);
+      if (localStorage.getItem("my-role") === "admin") {
+        getCity();
+      }
+      if (localStorage.getItem("my-role") === "student") {
+        getStudentClass();
+        getSubmittedAssignments();
+        getUnSubmittedAssignments();
+      }
       setAlert({ message: "Logged In Successfully", type: "success" });
       setTimeout(() => {
         setAlert(null);
@@ -161,7 +171,7 @@ const AppContext = ({ children }) => {
   };
 
   const getCity = async () => {
-    if(localStorage.getItem("my-role") !== "admin") return
+    if (localStorage.getItem("my-role") !== "admin") return;
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_USERS_API}/admin/getCities`,
@@ -341,7 +351,17 @@ const AppContext = ({ children }) => {
     }
   };
 
-  const addClass = async ({name, enrollmentKey, batch, timing, teacherId, cityId, courseId, campusId, userId }) => {
+  const addClass = async ({
+    name,
+    enrollmentKey,
+    batch,
+    timing,
+    teacherId,
+    cityId,
+    courseId,
+    campusId,
+    userId,
+  }) => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_USERS_API}/admin/addClass`,
@@ -354,7 +374,7 @@ const AppContext = ({ children }) => {
           cityId,
           courseId,
           campusId,
-          userId
+          userId,
         },
         {
           headers: {
@@ -370,15 +390,15 @@ const AppContext = ({ children }) => {
     } catch (error) {
       setAlert({ message: error.response.data.message, type: "error" });
     }
-  }
+  };
 
-  const handleEnrollInClass = async({ enrollmentKey, studentId }) =>{
+  const handleEnrollInClass = async ({ enrollmentKey, studentId }) => {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_USERS_API}/student/enrollStudent`,
         {
           enrollmentKey,
-          studentId
+          studentId,
         },
         {
           headers: {
@@ -398,7 +418,96 @@ const AppContext = ({ children }) => {
       setAlert({ message: error.response.data.message, type: "error" });
       console.log(error);
     }
-  }
+  };
+
+  const getStudentClass = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_USERS_API}/student/getStudentClass`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setStudentClass(response.data.data[0]);
+      // console.log(response);
+    } catch (error) {
+      setAlert({ message: "Please Login Again", type: "error" });
+    }
+  };
+
+  const createAssignment = async (data) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_USERS_API}/teacher/createAssignment`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setAlert({ message: response.data.message, type: "success" });
+    } catch (error) {
+      setAlert({ message: error.response.data.message, type: "error" });
+    }
+  };
+
+  const submitAssignment = async ({ link, assignmentId }) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_USERS_API}/student/submitAssignment`,
+        {
+          assignmentLink: link,
+          assignmentId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setAlert({ message: response.data.message, type: "success" });
+    } catch (error) {
+      setAlert({ message: error.response.data.message, type: "error" });
+      console.log(error);
+    }
+  };
+
+  const getSubmittedAssignments = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_USERS_API}/student/getSubmittedAssignment`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setSubmittedAssignments(response.data.data);
+    } catch (error) {
+      setAlert({ message: error.response.data.message, type: "error" });
+      console.log(error);
+    }
+  };
+
+  const getUnSubmittedAssignments = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_USERS_API}/student/getUnSubmittedAssignment`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setUnSubmittedAssignments(response.data.data);
+    } catch (error) {
+      setAlert({ message: error.response.data.message, type: "error" });
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     const accessToken = localStorage.getItem("my-accessToken");
@@ -418,8 +527,20 @@ const AppContext = ({ children }) => {
     } else {
       navigate("/login");
     }
-    getCity();
-    // getCourse();
+  }, []);
+
+  useEffect(() => {
+    if (localStorage.getItem("my-role") === "admin") {
+      getCity();
+    }
+    if (
+      localStorage.getItem("my-role") === "student" &&
+      localStorage.getItem("my-accessToken")
+    ) {
+      getStudentClass();
+      getSubmittedAssignments();
+      getUnSubmittedAssignments();
+    }
   }, []);
 
   return (
@@ -443,7 +564,11 @@ const AppContext = ({ children }) => {
         setCourse,
         courses,
         teachers,
-        classes,
+        studentClass,
+        submittedAssignments,
+        setSubmittedAssignments,
+        unSubmittedAssignments,
+        setUnSubmittedAssignments,
         addCity,
         addCampus,
         addCourse,
@@ -457,6 +582,9 @@ const AppContext = ({ children }) => {
         addClass,
         handleCourseChange,
         handleEnrollInClass,
+        getStudentClass,
+        createAssignment,
+        submitAssignment,
       }}
     >
       {children}
