@@ -3,28 +3,27 @@ import { GlobalContext } from "../context/AppContext";
 import { TextField } from "@mui/material";
 import PropTypes from "prop-types";
 
-const SubmitAssignment = ({ assignmentDetails }) => {
-  const { setAlert, submitAssignment, setSubmittedAssignments, setUnSubmittedAssignments } = useContext(GlobalContext);
+const SubmitAssignment = ({ assignmentId }) => {
+  const { setAlert, submitAssignment, setUnSubmittedAssignments } = useContext(GlobalContext);
   const [link, setLink] = useState("");
-    // console.log(assignmentId);
+
 
   const handleSubmitAssignment = () => {
     if (!link) {
       setAlert({ message: "Link is required", type: "error" });
       return;
     }
-    submitAssignment({ link, assignmentId: assignmentDetails._id }).then(() => {
-      document.getElementById("my_modal_1").close();
+    submitAssignment({ link, assignmentId }).then(() => {
+      document.getElementById("submit-assignment-modal").close();
       setLink("");
-      setSubmittedAssignments((prev) => [...prev, assignmentDetails]);
       setUnSubmittedAssignments((prev) => {
-        return prev.filter((assignment) => assignment._id !== assignmentDetails._id);
+        return prev.filter((assignment) => assignment._id !== assignmentId);
       })
     });
   };
 
   return (
-    <dialog id="my_modal_1" className="modal w-full">
+    <dialog id="submit-assignment-modal" className="modal w-full">
       <div className="modal-box flex flex-col gap-4">
         <h3 className="font-bold text-lg">Submit Assignment</h3>
         <TextField
@@ -41,7 +40,7 @@ const SubmitAssignment = ({ assignmentDetails }) => {
             <button
               className="btn btn-ghost"
               onClick={() => {
-                document.getElementById("my_modal_1").close();
+                document.getElementById("submit-assignment-modal").close();
                 setLink("");
               }}
             >
@@ -58,7 +57,7 @@ const SubmitAssignment = ({ assignmentDetails }) => {
 };
 
 SubmitAssignment.propTypes = {
-  assignmentDetails: PropTypes.any,
+  assignmentId: PropTypes.any,
 };
 
 export default SubmitAssignment;

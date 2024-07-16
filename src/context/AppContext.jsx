@@ -22,6 +22,7 @@ const AppContext = ({ children }) => {
   const [studentClass, setStudentClass] = useState("");
   const [submittedAssignments, setSubmittedAssignments] = useState([]);
   const [unSubmittedAssignments, setUnSubmittedAssignments] = useState([]);
+  const [createdAssignments, setCreatedAssignments] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -83,6 +84,11 @@ const AppContext = ({ children }) => {
         getStudentClass();
         getSubmittedAssignments();
         getUnSubmittedAssignments();
+      }
+      if (
+        localStorage.getItem("my-role") === "teacher" 
+      ) {
+        getCreatedAssignments();
       }
       setAlert({ message: "Logged In Successfully", type: "success" });
       setTimeout(() => {
@@ -454,27 +460,6 @@ const AppContext = ({ children }) => {
     }
   };
 
-  const submitAssignment = async ({ link, assignmentId }) => {
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_USERS_API}/student/submitAssignment`,
-        {
-          assignmentLink: link,
-          assignmentId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
-          },
-        }
-      );
-      setAlert({ message: response.data.message, type: "success" });
-    } catch (error) {
-      setAlert({ message: error.response.data.message, type: "error" });
-      console.log(error);
-    }
-  };
-
   const getSubmittedAssignments = async () => {
     try {
       const response = await axios.get(
@@ -503,6 +488,103 @@ const AppContext = ({ children }) => {
         }
       );
       setUnSubmittedAssignments(response.data.data);
+    } catch (error) {
+      setAlert({ message: error.response.data.message, type: "error" });
+      console.log(error);
+    }
+  };
+
+  const submitAssignment = async ({ link, assignmentId }) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_USERS_API}/student/submitAssignment`,
+        {
+          assignmentLink: link,
+          assignmentId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setSubmittedAssignments((prevSubmittedAssignments) => [
+        response.data.data,
+        ...prevSubmittedAssignments,
+      ]);
+      setAlert({ message: response.data.message, type: "success" });
+    } catch (error) {
+      setAlert({ message: error.response.data.message, type: "error" });
+      console.log(error);
+    }
+  };
+
+  const editSubmittedAssignment = async ({ assignmentId, assignmentLink }) => {
+    try {
+      const response = await axios.put(
+        `${
+          import.meta.env.VITE_USERS_API
+        }/student/editSubmittedAssignment/${assignmentId}`,
+        {
+          assignmentLink,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setSubmittedAssignments((prevSubmittedAssignments) => {
+        const updatedAssignments = prevSubmittedAssignments.map((assignment) =>
+          assignment._id === response.data.data._id
+            ? response.data.data
+            : assignment
+        );
+        return updatedAssignments;
+      });
+      setAlert({ message: response.data.message, type: "success" });
+    } catch (error) {
+      setAlert({ message: error.response.data.message, type: "error" });
+      console.log(error);
+    }
+  };
+
+  const deleteSubmittedAssignment = async (assignmentId) => {
+    try {
+      const response = await axios.delete(
+        `${
+          import.meta.env.VITE_USERS_API
+        }/student/deleteSubmittedAssignment/${assignmentId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setSubmittedAssignments((prevSubmittedAssignments) =>
+        prevSubmittedAssignments.filter(
+          (assignment) => assignment._id !== assignmentId
+        )
+      );
+      setUnSubmittedAssignments((prev) => [...prev, response.data.data]);
+      setAlert({ message: response.data.message, type: "success" });
+    } catch (error) {
+      setAlert({ message: error.response.data.message, type: "error" });
+      console.log(error);
+    }
+  };
+
+  const getCreatedAssignments = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_USERS_API}/teacher/getCreatedAssignments`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setCreatedAssignments(response.data.data);
     } catch (error) {
       setAlert({ message: error.response.data.message, type: "error" });
       console.log(error);
@@ -541,6 +623,12 @@ const AppContext = ({ children }) => {
       getSubmittedAssignments();
       getUnSubmittedAssignments();
     }
+    if (
+      localStorage.getItem("my-role") === "teacher" &&
+      localStorage.getItem("my-accessToken")
+    ) {
+      getCreatedAssignments();
+    }
   }, []);
 
   return (
@@ -576,6 +664,7 @@ const AppContext = ({ children }) => {
         registerUser,
         loginUser,
         logoutUser,
+        createdAssignments,
         refreshAccessToken,
         handleCityChange,
         handleCampusChange,
@@ -585,6 +674,8 @@ const AppContext = ({ children }) => {
         getStudentClass,
         createAssignment,
         submitAssignment,
+        editSubmittedAssignment,
+        deleteSubmittedAssignment,
       }}
     >
       {children}

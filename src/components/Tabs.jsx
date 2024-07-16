@@ -31,8 +31,8 @@ const Admin = () => {
   ];
 
   const teacherTabs = [
-    { label: "Add Assignment", value: "1", content: <AddAssignment /> },
-    { label: "Add Quiz", value: "2", content: <AddQuiz /> },
+    { label: "Assignment", value: "1", content: <AddAssignment /> },
+    { label: "Quizzes", value: "2", content: <AddQuiz /> },
   ];
 
   const studentTabs = [
