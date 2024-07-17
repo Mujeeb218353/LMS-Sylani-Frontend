@@ -85,9 +85,7 @@ const AppContext = ({ children }) => {
         getSubmittedAssignments();
         getUnSubmittedAssignments();
       }
-      if (
-        localStorage.getItem("my-role") === "teacher" 
-      ) {
+      if (localStorage.getItem("my-role") === "teacher") {
         getCreatedAssignments();
       }
       setAlert({ message: "Logged In Successfully", type: "success" });
@@ -454,6 +452,7 @@ const AppContext = ({ children }) => {
           },
         }
       );
+      setCreatedAssignments((prev) => [...prev, response.data.data]);
       setAlert({ message: response.data.message, type: "success" });
     } catch (error) {
       setAlert({ message: error.response.data.message, type: "error" });
@@ -508,10 +507,7 @@ const AppContext = ({ children }) => {
           },
         }
       );
-      setSubmittedAssignments((prevSubmittedAssignments) => [
-        response.data.data,
-        ...prevSubmittedAssignments,
-      ]);
+      setSubmittedAssignments((prev) => [...prev, response.data.data]);
       setAlert({ message: response.data.message, type: "success" });
     } catch (error) {
       setAlert({ message: error.response.data.message, type: "error" });
@@ -591,6 +587,78 @@ const AppContext = ({ children }) => {
     }
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const options = {
+      timeZone: "Asia/Karachi",
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+    };
+    return date.toLocaleString("en-US", options);
+  };
+
+  const editCreatedAssignment = async (data) => {
+    console.log(data.lastDate);
+    try {
+      const response = await axios.put(
+        `${
+          import.meta.env.VITE_USERS_API
+        }/teacher/editAssignment/${data._id}`,
+        {
+          title: data.title,
+          description: data.description,
+          lastDate: data.lastDate,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setCreatedAssignments((prevCreatedAssignments) => {
+        const updatedAssignments = prevCreatedAssignments.map((assignment) =>
+          assignment._id === response.data.data._id
+            ? response.data.data
+            : assignment
+        );
+        return updatedAssignments;
+      });
+      setAlert({ message: response.data.message, type: "success" });
+    } catch (error) {
+      setAlert({ message: error.response.data.message, type: "error" });
+      console.log(error);
+    }
+  };
+
+  const deleteCreatedAssignment = async (assignmentId) => {
+    try {
+      const response = await axios.delete(
+        `${
+          import.meta.env.VITE_USERS_API
+        }/teacher/deleteAssignment/${assignmentId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setCreatedAssignments((prevCreatedAssignments) =>
+        prevCreatedAssignments.filter(
+          (assignment) => assignment._id !== assignmentId
+        )
+      );
+      setAlert({ message: response.data.message, type: "success" });
+    } catch (error) {
+      setAlert({ message: error.response.data.message, type: "error" });
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     const accessToken = localStorage.getItem("my-accessToken");
     if (!accessToken) {
@@ -609,9 +677,6 @@ const AppContext = ({ children }) => {
     } else {
       navigate("/login");
     }
-  }, []);
-
-  useEffect(() => {
     if (localStorage.getItem("my-role") === "admin") {
       getCity();
     }
@@ -652,6 +717,8 @@ const AppContext = ({ children }) => {
         setCourse,
         courses,
         teachers,
+        formatDate,
+        createdAssignments,
         studentClass,
         submittedAssignments,
         setSubmittedAssignments,
@@ -664,7 +731,6 @@ const AppContext = ({ children }) => {
         registerUser,
         loginUser,
         logoutUser,
-        createdAssignments,
         refreshAccessToken,
         handleCityChange,
         handleCampusChange,
@@ -676,6 +742,8 @@ const AppContext = ({ children }) => {
         submitAssignment,
         editSubmittedAssignment,
         deleteSubmittedAssignment,
+        editCreatedAssignment,
+        deleteCreatedAssignment,
       }}
     >
       {children}

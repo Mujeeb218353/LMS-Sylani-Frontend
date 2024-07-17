@@ -4,7 +4,7 @@ import SubmitAssignment from "./SubmitAssignment";
 import EditSubmittedAssignment from "./EditSubmittedAssignment";
 
 const Assignment = () => {
-  const { submittedAssignments, unSubmittedAssignments, user, deleteSubmittedAssignment } =
+  const { submittedAssignments, unSubmittedAssignments, user, deleteSubmittedAssignment, formatDate } =
     useContext(GlobalContext);
   const [assignmentId, setAssignmentId] = useState(null);
   const [assignmentLink, setAssignmentLink] = useState("");
@@ -19,9 +19,8 @@ const Assignment = () => {
             <thead>
               <tr className="text-center">
                 <th>Title</th>
-                <th>Description</th>
                 <th>Assignment Link</th>
-                <th>Assigned Date</th>
+                <th>Submission Date</th>
                 <th>Due Date</th>
                 <th>Marks</th>
                 <th>Actions</th>
@@ -32,7 +31,6 @@ const Assignment = () => {
                 submittedAssignments.map((assignment) => (
                   <tr key={assignment._id} className="text-center">
                     <td className="font-semibold">{assignment.title}</td>
-                    <td>{assignment.description}</td>
                     <td>
                       {assignment.submittedBy &&
                         assignment.submittedBy
@@ -53,10 +51,12 @@ const Assignment = () => {
                     </td>
 
                     <td>
-                      {new Date(assignment.assignedDate).toLocaleDateString()}
+                      {formatDate(assignment.submittedBy && assignment.submittedBy
+                              .filter(student => student.studentId.toString() === user._id.toString())
+                              .map(student => student.submissionDate))}
                     </td>
                     <td>
-                      {new Date(assignment.lastDate).toLocaleDateString()}
+                      {formatDate(assignment.lastDate)}
                     </td>
                     <td>{assignment.marks || 0}</td>
                     <td className="flex gap-2 justify-center items-center py-12 lg:py-4">
@@ -124,17 +124,17 @@ const Assignment = () => {
                   <p>Description: {assignment.description}</p>
                   <p>
                     Assigned Date:{" "}
-                    {new Date(assignment.assignedDate).toLocaleDateString()}
+                    {formatDate(assignment.assignedDate)}
                   </p>
                   <p>
                     Due Date:{" "}
-                    {new Date(assignment.lastDate).toLocaleDateString()}
+                    {formatDate(assignment.lastDate)}
                   </p>
                 </div>
                 <button
                   className="btn btn-accent"
                   disabled={
-                    Date.now() > new Date(assignment.lastDate).getTime()
+                    Date.now() > new Date(assignment.lastDate)
                   }
                   onClick={() => {
                     document
@@ -143,7 +143,7 @@ const Assignment = () => {
                     setAssignmentId(assignment._id);
                   }}
                 >
-                  {Date.now() > new Date(assignment.lastDate).getTime()
+                  {Date.now() > new Date(assignment.lastDate)
                     ? "Due"
                     : "Submit"}
                 </button>

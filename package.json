@@ -15,7 +15,7 @@
     "@fortawesome/fontawesome-svg-core": "^6.5.2",
     "@mui/icons-material": "^5.16.1",
     "@mui/lab": "^5.0.0-alpha.171",
-    "@mui/material": "^5.16.0",
+    "@mui/material": "^5.16.4",
     "axios": "^1.7.2",
     "date-fns": "^3.6.0",
     "dotenv": "^16.4.5",

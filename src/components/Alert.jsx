@@ -46,7 +46,7 @@ export default function CustomAlert() {
           onClose={handleClose}
           severity={alert.type}
           variant="filled"
-          sx={{ width: "100%" }}
+          sx={{ width: "100%", textAlign: "center" }}
         >
           {alert.message}
         </Alert>
