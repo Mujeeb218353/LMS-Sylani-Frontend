@@ -603,7 +603,6 @@ const AppContext = ({ children }) => {
   };
 
   const editCreatedAssignment = async (data) => {
-    console.log(data.lastDate);
     try {
       const response = await axios.put(
         `${
@@ -631,7 +630,6 @@ const AppContext = ({ children }) => {
       setAlert({ message: response.data.message, type: "success" });
     } catch (error) {
       setAlert({ message: error.response.data.message, type: "error" });
-      console.log(error);
     }
   };
 

@@ -98,7 +98,7 @@ const AddAssignment = () => {
       _id: editAssignment._id,
       title: editAssignment.title,
       description: editAssignment.description,
-      lastDate: `${editAssignment.lastDate} 23:59:59.999`,
+      lastDate: editAssignment.lastDate.includes("T") ? editAssignment.lastDate : `${editAssignment.lastDate} 23:59:59.999`,
     }).then(() => {
       setEditAssignment({
         _id: "",
@@ -249,7 +249,6 @@ const AddAssignment = () => {
                           rows={4}
                           value={editAssignment.description}
                           onChange={(e) => {
-                            console.log(e.target.value);
                             setEditAssignment({
                               ...editAssignment,
                               description: e.target.value,
@@ -274,7 +273,7 @@ const AddAssignment = () => {
                           onChange={(e) => {
                             setEditAssignment({
                               ...editAssignment,
-                              lastDate: e.target.value,
+                              lastDate: e.target.value.split("T")[0],
                             });
                           }}
                         />
