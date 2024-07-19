@@ -9,6 +9,7 @@ import Signup from "./pages/Signup.jsx";
 import Home from "./pages/Home.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Profile from "./pages/Profile.jsx";
+import AssignmentDetails from "./pages/AssignmentDetails.jsx";
 
 const router = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ const router = createBrowserRouter([
             path: "profile",
             element: <Profile />,
           },
+          {
+            path: ":id",
+            element: <AssignmentDetails />,
+          }
         ],
       },
     ],

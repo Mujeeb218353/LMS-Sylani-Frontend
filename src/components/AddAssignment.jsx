@@ -1,6 +1,7 @@
 import { useState, useContext } from "react";
 import { GlobalContext } from "../context/AppContext";
 import TextField from "@mui/material/TextField";
+import { Link } from "react-router-dom";
 
 const AddAssignment = () => {
   const {
@@ -10,6 +11,7 @@ const AddAssignment = () => {
     formatDate,
     editCreatedAssignment,
     deleteCreatedAssignment,
+    setAssignmentId,
   } = useContext(GlobalContext);
   const [assignment, setAssignment] = useState({
     title: "",
@@ -207,12 +209,16 @@ const AddAssignment = () => {
                     {formatDate(assignment.lastDate)}
                   </p>
                   <div className="card-actions">
-                    <button
+                    <Link
+                      to={`/${assignment._id}`}
                       className="btn btn-info btn-outline"
-                      onClick={() => {}}
+                      onClick={() => {
+                        setAlert(null)
+                        setAssignmentId(assignment._id);
+                      }}
                     >
                       Details
-                    </button>
+                    </Link>
                     <button
                       className="btn btn-success btn-outline"
                       onClick={() => {

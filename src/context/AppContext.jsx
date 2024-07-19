@@ -1,7 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 export const GlobalContext = createContext();
 
@@ -10,6 +10,7 @@ const AppContext = ({ children }) => {
   const [theme, setTheme] = useState(
     localStorage.getItem("my-theme") || "light"
   );
+  const location = useLocation();
   localStorage.setItem("my-theme", theme);
   const [alert, setAlert] = useState();
   const [user, setUser] = useState({});
@@ -23,6 +24,9 @@ const AppContext = ({ children }) => {
   const [submittedAssignments, setSubmittedAssignments] = useState([]);
   const [unSubmittedAssignments, setUnSubmittedAssignments] = useState([]);
   const [createdAssignments, setCreatedAssignments] = useState([]);
+  const [assignmentId, setAssignmentId] = useState("")
+  const [studentsSubmittedAssignment, setStudentsSubmittedAssignment] = useState([]);
+  const [studentsNotSubmittedAssignment, setStudentsNotSubmittedAssignment] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -390,7 +394,7 @@ const AppContext = ({ children }) => {
         message: response.data.message || "Class Added Successfully",
         type: "success",
       });
-      setClasses((prevClasses) => [response.data.data, ...prevClasses]);
+      // setClasses((prevClasses) => [response.data.data, ...prevClasses]);
     } catch (error) {
       setAlert({ message: error.response.data.message, type: "error" });
     }
@@ -582,6 +586,11 @@ const AppContext = ({ children }) => {
       );
       setCreatedAssignments(response.data.data);
     } catch (error) {
+      if(error.response.data.message === "jwt expired"){
+        localStorage.removeItem("my-accessToken");
+        localStorage.removeItem("my-role");
+        return
+      }
       setAlert({ message: error.response.data.message, type: "error" });
       console.log(error);
     }
@@ -657,6 +666,59 @@ const AppContext = ({ children }) => {
     }
   };
 
+  const getStudentsSubmittedAssignment = async (assignmentId) => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_USERS_API}/teacher/getStudentsSubmittedAssignment/${assignmentId? assignmentId : location.pathname.split("/")[1]}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setStudentsSubmittedAssignment(response.data.data);
+    } catch (error) {
+      setAlert({ message: error.response.data.message, type: "error" });
+    }
+  };
+
+  const getStudentsNotSubmittedAssignment = async (assignmentId) => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_USERS_API}/teacher/getStudentsNotSubmittedAssignment/${assignmentId? assignmentId : location.pathname.split("/")[1]}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+          },
+        }
+      );
+      setStudentsNotSubmittedAssignment(response.data.data);
+    } catch (error) {
+      setAlert({ message: error.response.data.message, type: "error" });
+    }
+  };
+
+const assignMarks = async (data) => {
+  try {
+    const response = await axios.put(
+      `${import.meta.env.VITE_USERS_API}/teacher/assignMarks/${data.assignmentId}`,
+      {
+        marks: data.marks,
+        studentId: data.studentId,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("my-accessToken")}`,
+        },
+      }
+    );
+    await getStudentsSubmittedAssignment(data.assignmentId);
+    setAlert({ message: response.data.message, type: "success" });
+  } catch (error) {
+    setAlert({ message: error.response.data.message, type: "error" });
+  }
+};
+
   useEffect(() => {
     const accessToken = localStorage.getItem("my-accessToken");
     if (!accessToken) {
@@ -715,6 +777,8 @@ const AppContext = ({ children }) => {
         setCourse,
         courses,
         teachers,
+        assignmentId, 
+        setAssignmentId,
         formatDate,
         createdAssignments,
         studentClass,
@@ -722,6 +786,8 @@ const AppContext = ({ children }) => {
         setSubmittedAssignments,
         unSubmittedAssignments,
         setUnSubmittedAssignments,
+        studentsSubmittedAssignment,                     
+        studentsNotSubmittedAssignment,
         addCity,
         addCampus,
         addCourse,
@@ -742,6 +808,9 @@ const AppContext = ({ children }) => {
         deleteSubmittedAssignment,
         editCreatedAssignment,
         deleteCreatedAssignment,
+        getStudentsSubmittedAssignment,
+        getStudentsNotSubmittedAssignment,
+        assignMarks,
       }}
     >
       {children}

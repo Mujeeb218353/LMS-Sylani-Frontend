@@ -466,9 +466,9 @@ const Signup = () => {
         </ThemeProvider>
       </form>
       <div className="text-sm font-light text-center py-2">
-        Don’t have an account yet?{" "}
+        I have an account{" "}
         <Link to="/login" className="link link-accent font-medium">
-          Sign up
+          Login
         </Link>
       </div>
      <ThemeChanger />
