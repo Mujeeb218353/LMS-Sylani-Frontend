@@ -195,8 +195,7 @@ const AppContext = ({ children }) => {
     }
   };
 
-  const handleCityChange = async (selectedCity) => {
-    if (selectedCity) {
+  const handleCityChange = async () => {
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_USERS_API}/admin/getCampuses`,
@@ -209,11 +208,8 @@ const AppContext = ({ children }) => {
         setCampuses(response.data.data);
       } catch (error) {
         setAlert({ message: "Failed to fetch campuses", type: "error" });
-        console.log(error);
+        setCampuses([]);
       }
-    } else {
-      setCampuses([]);
-    }
   };
 
   // const getCourse = async () => {
@@ -232,8 +228,7 @@ const AppContext = ({ children }) => {
   //   }
   // };
 
-  const handleCampusChange = async (selectedCampus) => {
-    if (selectedCampus) {
+  const handleCampusChange = async () => {
       try {
         const response = await axios.get(
           `${import.meta.env.VITE_USERS_API}/admin/getCourses`,
@@ -246,10 +241,8 @@ const AppContext = ({ children }) => {
         setCourses(response.data.data);
       } catch (error) {
         setAlert({ message: "Failed to fetch courses", type: "error" });
+        setCourses([]);
       }
-    } else {
-      setCourses([]);
-    }
   };
 
   const addCity = async ({ cityName, userId }) => {
@@ -363,7 +356,6 @@ const AppContext = ({ children }) => {
     name,
     enrollmentKey,
     batch,
-    timing,
     teacherId,
     cityId,
     courseId,
@@ -377,7 +369,6 @@ const AppContext = ({ children }) => {
           name,
           enrollmentKey,
           batch,
-          timing,
           teacherId,
           cityId,
           courseId,
@@ -394,9 +385,9 @@ const AppContext = ({ children }) => {
         message: response.data.message || "Class Added Successfully",
         type: "success",
       });
-      // setClasses((prevClasses) => [response.data.data, ...prevClasses]);
     } catch (error) {
       setAlert({ message: error.response.data.message, type: "error" });
+      throw error
     }
   };
 

@@ -25,11 +25,8 @@ const AddClass = () => {
   const [campus, setCampus] = useState(null);
   const [course, setCourse] = useState(null);
   const [batch, setBatch] = useState("");
-  const [timing, setTiming] = useState("");
-  const [error, setError] = useState(false);
-  const [helperText, setHelperText] = useState("");
 
-  const handleAddClass = () => {
+  const handleAddClass = async () => {
     if (!className) {
       setAlert({ message: "Class Name is required", type: "error" });
       return;
@@ -73,45 +70,33 @@ const AddClass = () => {
       return;
     }
 
-    if (!timing) {
-      setAlert({ message: "Timing is required", type: "error" });
-      return;
-    }
-
-    if (
-      !/^([1-9]|1[0-2]):[0-5][0-9] (AM|PM) - ([1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/.test(
-        timing
-      )
-    ) {
-      setAlert({ message: "Invalid Timing", type: "error" });
-      return;
-    }
 
     if (!user) {
       setAlert({ message: "User is required", type: "error" });
       return;
     }
 
-    addClass({
-      name: className,
-      enrollmentKey,
-      batch,
-      timing,
-      teacherId: teacher._id,
-      cityId: city._id,
-      courseId: course._id,
-      campusId: campus._id,
-      userId: user._id,
-    }).then(() => {
-      setClassName("");
-      setEnrollmentKey("");
+    try {
+      await addClass({
+        name: className,
+        enrollmentKey,
+        batch,
+        teacherId: teacher._id,
+        cityId: city._id,
+        courseId: course._id,
+        campusId: campus._id,
+        userId: user._id,
+      });
+      setClassName('');
+      setEnrollmentKey('');
       setTeacher(null);
       setCity(null);
       setCampus(null);
       setCourse(null);
-      setBatch("");
-      setTiming("");
-    });
+      setBatch('');
+    } catch (error) {
+      if(error) return
+    }
   };
 
   return (
@@ -144,35 +129,6 @@ const AddClass = () => {
             placeholder="Enter Batch"
             onChange={(e) => setBatch(e.target.value)}
             value={batch}
-          />
-          <TextField
-            id="timings"
-            label="Timings"
-            type="text"
-            className="w-full"
-            placeholder="HH:MM AM/PM - HH:MM AM/PM"
-            onChange={(e) => {
-              setTiming(e.target.value);
-              if (
-                /^([1-9]|1[0-2]):[0-5][0-9] (AM|PM) - ([1-9]|1[0-2]):[0-5][0-9] (AM|PM)$/.test(
-                  e.target.value
-                )
-              ) {
-                setError(false);
-                setHelperText("");
-              } else if((e.target.value).length > 4){
-                setError(true);
-                setHelperText(
-                  "Invalid time format. Use HH:MM AM/PM - HH:MM AM/PM"
-                );
-              }else{
-                setError(false);
-                setHelperText("");
-              }
-            }}
-            value={timing}
-            error={error}
-            helperText={helperText}
           />
           <Autocomplete
             disablePortal
